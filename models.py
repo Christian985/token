@@ -11,6 +11,8 @@ class UsuarioExemplo(Base):
     id = Column(Integer, primary_key=True)
     nome = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
+    senha_hash = Column(String, nullable=False)
+    papel = Column(String, nullable=False)
 
 class NotasExemplo(Base):
     __tablename__ = 'notas_exemplo'
