@@ -6,25 +6,48 @@ app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = 'senha_deve_ser_FORTE'
 jwt = JWTManager(app)
 
+@app.route("/login", methods=["POST"])
+def login():
+    dados = request.get_json()
+    email = dados["email"]
+    senha = dados["senha"]
+
+    db_session = SessionLocalExemplo()
+
+    try:
+        sql = select(UsuarioExemplo).where(UsuarioExemplo.email == email)
+        user = db_session.execute(sql).scalar()
+
+        if user and user.senha == senha:
+            access_token = create_access_token(identity=email)
+            return jsonify(access_token=access_token)
+        return jsonify({"msg":"Credenciais inválidas"}), 401
+    # Fecha o Banco e o abre de novo
+    finally:
+        db_session.close()
+
 @app.route('/cadastro', methods=['POST'])
 def cadastro():
     dados = request.get_json()
     nome = dados['nome']
     email = dados['email']
+    papel = dados.get['papel', 'usuario']
+    senha = dados['senha']
 
-    if not nome or not email:
+    if not nome or not email or not senha:
         return jsonify({"msg": "Nome de usuário e senha são obrigatórios"}), 400
 
     banco = SessionLocalExemplo()
     try:
         # Verificar se o usuário já existe
-        user_check = select(UsuarioExemplo).where(UsuarioExemplo.nome == nome)
+        user_check = select(UsuarioExemplo).where(UsuarioExemplo.email == email)
         usuario_existente = banco.execute(user_check).scalar()
 
         if usuario_existente:
             return jsonify({"msg": "Usuário já existe"}), 400
 
-        novo_usuario = UsuarioExemplo(nome=nome, email=email)
+        novo_usuario = UsuarioExemplo(nome=nome, email=email, papel=papel)
+        novo_usuario.set_senha_hash(senha)
         banco.add(novo_usuario)
         banco.commit()
 
