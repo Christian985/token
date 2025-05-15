@@ -79,8 +79,26 @@ def cadastro():
     finally:
         db_session.close()
 
+@app.route('/lista_pessoas', methods=['GET'])
+@jwt_required
+def lista_pessoas():
+    db_session = SessionLocalExemplo()
+    sql = select(UsuarioExemplo)
+    tds_usuario = db_session.execute(sql).scalars()
+    try:
+        lista_pessoas = []
+        for usuario in tds_usuario:
+            lista_pessoas.append(usuario.serialize())
+        return jsonify(lista_pessoas), 200
+    except Exception as e:
+        return jsonify({'msg':'Erro ao listar usuarios'}), 403
+    finally:
+        db_session.close()
+
 # Precisa de senha
 @app.route('/notas_exemplo', methods=['POST'])
+@jwt_required()
+@admin_required
 def criar_nota_exemplo():
     data = request.get_json()
     conteudo = data.get('conteudo')
@@ -105,6 +123,8 @@ def criar_nota_exemplo():
 
 
 @app.route('/notas_exemplo', methods=['GET'])
+@jwt_required()
+@admin_required
 def listar_notas_exemplo():
     db = SessionLocalExemplo()
     try:
