@@ -3,9 +3,11 @@ from sqlalchemy import select
 from models import UsuarioExemplo, NotasExemplo, SessionLocalExemplo
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager, get_jwt_identity
 from functools import wraps
+
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = 'senha_deve_ser_FORTE'
 jwt = JWTManager(app)
+
 
 # Verifica se é um adm ou não
 def admin_required(fn):
@@ -19,10 +21,12 @@ def admin_required(fn):
             user = db_session.execute(sql).scalar()
             if user and user.papel == "admin":
                 return fn(*args, **kwargs)
-            return jsonify({'msg':'Acesso negado: Requer privilégios de administrador'}), 403
+            return jsonify({'msg': 'Acesso negado: Requer privilégios de administrador'}), 403
         finally:
             db_session.close()
+
     return wrapper
+
 
 # Não precisa de senha
 @app.route("/login", methods=["POST"])
@@ -37,13 +41,14 @@ def login():
         sql = select(UsuarioExemplo).where(UsuarioExemplo.email == email)
         user = db_session.execute(sql).scalar()
 
-        if user and user.senha == senha:
+        if user and user.check_password_hash(senha) == senha:
             access_token = create_access_token(identity=email)
             return jsonify(access_token=access_token)
-        return jsonify({"msg":"Credenciais inválidas"}), 401
+        return jsonify({"msg": "Credenciais inválidas"}), 401
     # Fecha o Banco e o abre de novo
     finally:
         db_session.close()
+
 
 # Não precisa de senha
 @app.route('/cadastro', methods=['POST'])
@@ -79,6 +84,7 @@ def cadastro():
     finally:
         db_session.close()
 
+
 @app.route('/lista_pessoas', methods=['GET'])
 @jwt_required
 def lista_pessoas():
@@ -91,9 +97,10 @@ def lista_pessoas():
             lista_pessoas.append(usuario.serialize())
         return jsonify(lista_pessoas), 200
     except Exception as e:
-        return jsonify({'msg':'Erro ao listar usuarios'}), 403
+        return jsonify({'msg': 'Erro ao listar usuarios'}), 403
     finally:
         db_session.close()
+
 
 # Precisa de senha
 @app.route('/notas_exemplo', methods=['POST'])
