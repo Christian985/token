@@ -24,6 +24,7 @@ def admin_required(fn):
             db_session.close()
     return wrapper
 
+# Não precisa de senha
 @app.route("/login", methods=["POST"])
 def login():
     dados = request.get_json()
@@ -44,6 +45,7 @@ def login():
     finally:
         db_session.close()
 
+# Não precisa de senha
 @app.route('/cadastro', methods=['POST'])
 def cadastro():
     dados = request.get_json()
@@ -77,7 +79,7 @@ def cadastro():
     finally:
         db_session.close()
 
-
+# Precisa de senha
 @app.route('/notas_exemplo', methods=['POST'])
 def criar_nota_exemplo():
     data = request.get_json()
