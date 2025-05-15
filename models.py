@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
+from werkzeug.security import generate_password_hash, check_password_hash
 
 Base = declarative_base()
 engine = create_engine('sqlite:///database.db')
@@ -13,6 +14,22 @@ class UsuarioExemplo(Base):
     email = Column(String, nullable=False, unique=True)
     senha_hash = Column(String, nullable=False)
     papel = Column(String, nullable=False)
+
+    def set_senha_hash(self, senha):
+        self.senha_hash = generate_password_hash(senha)
+
+    def check_password_hash(self, senha):
+        return check_password_hash(self.senha_hash, senha)
+
+    def serialize(self):
+        dados= {
+            'id': self.id,
+            'nome': self.nome,
+            'email': self.email,
+            'senha_hash': self.senha_hash,
+            'papel': self.papel,
+        }
+        return dados
 
 class NotasExemplo(Base):
     __tablename__ = 'notas_exemplo'
