@@ -37,27 +37,27 @@ def cadastro():
     if not nome or not email or not senha:
         return jsonify({"msg": "Nome de usuário e senha são obrigatórios"}), 400
 
-    banco = SessionLocalExemplo()
+    db_session = SessionLocalExemplo()
     try:
         # Verificar se o usuário já existe
         user_check = select(UsuarioExemplo).where(UsuarioExemplo.email == email)
-        usuario_existente = banco.execute(user_check).scalar()
+        usuario_existente = db_session.execute(user_check).scalar()
 
         if usuario_existente:
             return jsonify({"msg": "Usuário já existe"}), 400
 
         novo_usuario = UsuarioExemplo(nome=nome, email=email, papel=papel)
         novo_usuario.set_senha_hash(senha)
-        banco.add(novo_usuario)
-        banco.commit()
+        db_session.add(novo_usuario)
+        db_session.commit()
 
         user_id = novo_usuario.id
         return jsonify({"msg": "Usuário criado com sucesso", "user_id": user_id}), 201
     except Exception as e:
-        banco.rollback()
+        db_session.rollback()
         return jsonify({"msg": f"Erro ao registrar usuário: {str(e)}"}), 500
     finally:
-        banco.close()
+        db_session.close()
 
 
 @app.route('/notas_exemplo', methods=['POST'])
@@ -77,6 +77,7 @@ def criar_nota_exemplo():
         nota_id = nova_nota.id
         return jsonify({"msg": "Nota criada", "nota_id": nota_id}), 201
     except Exception as e:
+        # Volta ao ultimo estado
         db.rollback()
         return jsonify({"msg": f"Erro ao criar nota: {str(e)}"}), 500
     finally:
