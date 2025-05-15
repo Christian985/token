@@ -2,9 +2,27 @@ from flask import Flask, jsonify, request
 from sqlalchemy import select
 from models import UsuarioExemplo, NotasExemplo, SessionLocalExemplo
 from flask_jwt_extended import create_access_token, jwt_required, JWTManager, get_jwt_identity
+from functools import wraps
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = 'senha_deve_ser_FORTE'
 jwt = JWTManager(app)
+
+# Verifica se é um adm ou não
+def admin_required(fn):
+    # Verifica se tem parâmetros
+    @wraps(fn)
+    def wrapped(*args, **kwargs):
+        current_user = get_jwt_identity()
+        db_session = SessionLocalExemplo()
+        try:
+            sql = select(UsuarioExemplo).where(UsuarioExemplo.id == current_user)
+            user = db_session.execute(sql).scalar()
+            if user and user.papel == "admin":
+                return fn(*args, **kwargs)
+            return jsonify({'msg':'Acesso negado: Requer privilégios de administrador'}), 403
+        finally:
+            db_session.close()
+    return wrapped
 
 @app.route("/login", methods=["POST"])
 def login():
