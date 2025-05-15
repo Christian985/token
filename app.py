@@ -1,9 +1,10 @@
 from flask import Flask, jsonify, request
 from sqlalchemy import select
 from models import UsuarioExemplo, NotasExemplo, SessionLocalExemplo
-
+from flask_jwt_extended import create_access_token, jwt_required, JWTManager, get_jwt_identity
 app = Flask(__name__)
-
+app.config["JWT_SECRET_KEY"] = 'senha_deve_ser_FORTE'
+jwt = JWTManager(app)
 
 @app.route('/cadastro', methods=['POST'])
 def cadastro():
