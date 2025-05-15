@@ -11,7 +11,7 @@ jwt = JWTManager(app)
 def admin_required(fn):
     # Verifica se tem parâmetros
     @wraps(fn)
-    def wrapped(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         current_user = get_jwt_identity()
         db_session = SessionLocalExemplo()
         try:
@@ -22,7 +22,7 @@ def admin_required(fn):
             return jsonify({'msg':'Acesso negado: Requer privilégios de administrador'}), 403
         finally:
             db_session.close()
-    return wrapped
+    return wrapper
 
 @app.route("/login", methods=["POST"])
 def login():
