@@ -1,9 +1,9 @@
-from flask import Flask, jsonify,request
+from flask import Flask, jsonify, request
 from sqlalchemy import select
 from models import UsuarioExemplo, NotasExemplo, SessionLocalExemplo
 
-
 app = Flask(__name__)
+
 
 @app.route('/cadastro', methods=['POST'])
 def cadastro():
@@ -35,6 +35,7 @@ def cadastro():
     finally:
         banco.close()
 
+
 @app.route('/notas_exemplo', methods=['POST'])
 def criar_nota_exemplo():
     data = request.get_json()
@@ -57,16 +58,18 @@ def criar_nota_exemplo():
     finally:
         db.close()
 
+
 @app.route('/notas_exemplo', methods=['GET'])
 def listar_notas_exemplo():
     db = SessionLocalExemplo()
     try:
         stmt = select(NotasExemplo)
-        notas_result = db.execute(stmt).scalars().all() # .scalars().all() para obter uma lista de objetos
+        notas_result = db.execute(stmt).scalars().all()  # .scalars().all() para obter uma lista de objetos
         notas_list = [{"id": nota.id, "conteudo": nota.conteudo} for nota in notas_result]
         return jsonify(notas_list)
     finally:
         db.close()
 
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5001) # Rodar em uma porta diferente da API principal
+    app.run(debug=True, port=5001)  # Rodar em uma porta diferente da API principal
