@@ -26,8 +26,7 @@ class UsuarioExemplo(Base):
             'id': self.id,
             'nome': self.nome,
             'email': self.email,
-            'senha_hash': self.senha_hash,
-            'papel': self.papel,
+            'papel': self.papel
         }
         return dados
 

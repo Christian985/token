@@ -34,16 +34,18 @@ def login():
     dados = request.get_json()
     email = dados["email"]
     senha = dados["senha"]
-
+    print(senha, email)
     db_session = SessionLocalExemplo()
 
     try:
         sql = select(UsuarioExemplo).where(UsuarioExemplo.email == email)
         user = db_session.execute(sql).scalar()
-
+        print(user.nome)
+        print(user.check_password_hash(senha) == senha)
         if user and user.check_password_hash(senha) == senha:
             access_token = create_access_token(identity=email)
             return jsonify(access_token=access_token)
+
         return jsonify({"msg": "Credenciais inválidas"}), 401
     # Fecha o Banco e o abre de novo
     finally:
