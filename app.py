@@ -146,4 +146,4 @@ def listar_notas_exemplo():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)  # Rodar em uma porta diferente da API principal
+    app.run(debug=True, host="0.0.0.0", port=5000)  # Rodar em uma porta diferente da API principal
