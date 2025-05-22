@@ -56,7 +56,7 @@ def cadastro():
     dados = request.get_json()
     nome = dados['nome']
     email = dados['email']
-    papel = dados.get['papel', 'usuario']
+    papel = dados.get('papel', 'usuario')
     senha = dados['senha']
 
     if not nome or not email or not senha:
